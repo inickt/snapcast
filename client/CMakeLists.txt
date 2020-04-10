@@ -1,11 +1,17 @@
 set(CLIENT_SOURCES
     client_connection.cpp
+    client_connection.hpp
     controller.cpp
+    controller.hpp
     snapclient.cpp
     stream.cpp
+    stream.hpp
     time_provider.cpp
+    time_provider.hpp
     decoder/pcm_decoder.cpp
-    player/player.cpp)
+    decoder/pcm_decoder.hpp
+    player/player.cpp
+    player/player.hpp)
 
 set(CLIENT_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${ATOMIC_LIBRARY} common)
 
@@ -20,7 +26,7 @@ set(CLIENT_INCLUDE
 if(MACOSX)
     # Bonjour
     if (BONJOUR_FOUND)
-        list(APPEND CLIENT_SOURCES browseZeroConf/browse_bonjour.cpp)
+        list(APPEND CLIENT_SOURCES browseZeroConf/browse_bonjour.cpp browseZeroConf/browse_bonjour.hpp)
     endif (BONJOUR_FOUND)
 
     # CoreAudio
@@ -86,7 +92,11 @@ if (OPUS_FOUND)
 endif (OPUS_FOUND)
 
 include_directories(${CLIENT_INCLUDE})
-add_executable(snapclient ${CLIENT_SOURCES})
+add_library(snapclient SHARED ${CLIENT_SOURCES})
 target_link_libraries(snapclient ${CLIENT_LIBRARIES})
+
+add_executable(snapclient-bin ${CLIENT_SOURCES})
+target_link_libraries(snapclient-bin snapclient ${CLIENT_LIBRARIES})
+set_target_properties(snapclient-bin PROPERTIES OUTPUT_NAME snapclient)
 
 install(TARGETS snapclient COMPONENT client DESTINATION "${CMAKE_INSTALL_BINDIR}")
